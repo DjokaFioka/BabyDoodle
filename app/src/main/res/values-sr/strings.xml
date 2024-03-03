@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Baby Doodle</string>
+    <string name="dlg_exit_title">Zatvaranje aplikacije</string>
+    <string name="dlg_exit_message">Da li želite da zatvorite aplikaciju?</string>
+    <string name="yes">Da</string>
+    <string name="no">Ne</string>
+    <string name="confirm">Potvrdi</string>
+    <string name="cancel">Otkaži</string>
+</resources>
