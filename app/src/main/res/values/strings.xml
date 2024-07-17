@@ -1,9 +1,13 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Baby Doodle</string>
+    <string name="authority_photo_fileprovider" tools:ignore="MissingTranslation">rs.djokafioka.babydoodle.fileprovider</string>
     <string name="dlg_exit_title">Application closing</string>
     <string name="dlg_exit_message">Do you want to exit the app?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="share">Share</string>
+    <string name="select_app_to_share">Select app to share</string>
 </resources>

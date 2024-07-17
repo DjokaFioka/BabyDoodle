@@ -1,6 +1,11 @@
 package rs.djokafioka.babydoodle.ui;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,8 +15,15 @@ import android.widget.ImageButton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import rs.djokafioka.babydoodle.R;
 
 /**
@@ -25,6 +37,7 @@ public class DrawFragment extends Fragment
     private ImageButton mImgDraw;
     private ImageButton mImgErase;
     private ImageButton mImgClearAll;
+    private ImageButton mImgShare;
 
     public static DrawFragment newInstance() {
         return new DrawFragment();
@@ -42,6 +55,7 @@ public class DrawFragment extends Fragment
         mImgDraw = v.findViewById(R.id.img_draw);
         mImgErase = v.findViewById(R.id.img_erase);
         mImgClearAll = (ImageButton) v.findViewById(R.id.img_clear_all);
+        mImgShare = v.findViewById(R.id.img_share);
 
         mImgDraw.setOnClickListener(onClick -> {
             mFingerpaintView.runDrawMode();
@@ -60,6 +74,10 @@ public class DrawFragment extends Fragment
         mImgClearAll.setOnClickListener(onClick -> {
             mFingerpaintView.clearAll();
             mImgDraw.callOnClick();
+        });
+
+        mImgShare.setOnClickListener(onClick -> {
+            takeScreenshot();
         });
 
         return v;
@@ -99,4 +117,57 @@ public class DrawFragment extends Fragment
         mViewModel.setIsEraseModeOn(mIsEraseModeOn);
     }
 
+    private void takeScreenshot()
+    {
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(() -> {
+            try
+            {
+                // create bitmap screen capture
+                View v1 = getActivity().getWindow().getDecorView().getRootView();
+                v1.setDrawingCacheEnabled(true);
+                Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
+                v1.setDrawingCacheEnabled(false);
+
+                // Create an image file name
+                String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                String imageFileName = "Doodle_" + timeStamp;
+                File storageDir = new File(getContext().getFilesDir(), "Pictures");
+                storageDir.mkdirs();
+                File imageFile = File.createTempFile(
+                        imageFileName,  /* prefix */
+                        ".jpg",         /* suffix */
+                        storageDir      /* directory */
+                );
+
+                FileOutputStream outputStream = new FileOutputStream(imageFile);
+                int quality = 100;
+                bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+                outputStream.flush();
+                outputStream.close();
+
+                shareScreenshot(imageFile);
+
+
+            }
+            catch (Throwable e)
+            {
+                // Several error may come out with file handling or DOM
+                e.printStackTrace();
+            }
+        }, 200);
+    }
+
+    private void shareScreenshot(File imageFile)
+    {
+        Uri photoURI = FileProvider.getUriForFile(getContext(),
+                getString(R.string.authority_photo_fileprovider),
+                imageFile);
+
+        Intent slanjeIntent = new Intent(Intent.ACTION_SEND);
+        slanjeIntent.putExtra(Intent.EXTRA_STREAM, photoURI);
+
+        slanjeIntent.setType("image/*");
+        startActivity(Intent.createChooser(slanjeIntent, getString(R.string.select_app_to_share)));
+    }
 }
