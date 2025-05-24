@@ -2,12 +2,17 @@ package rs.djokafioka.babydoodle.ui;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import rs.djokafioka.babydoodle.R;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.View;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -15,8 +20,24 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         setContentView(R.layout.activity_main);
 
+        // Apply system window insets to avoid bottom overlap
+        View rootView = findViewById(R.id.root_layout);
+        ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
+            Insets navBarInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+
+            // Add bottom padding to avoid overlap with nav bar or gesture area
+            v.setPadding(
+                    v.getPaddingLeft(),
+                    v.getPaddingTop(),
+                    v.getPaddingRight(),
+                    navBarInsets.bottom
+            );
+
+            return insets;
+        });
         if (savedInstanceState == null) {
             showFragment(DrawFragment.newInstance(), false);
         }
